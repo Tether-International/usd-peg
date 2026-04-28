@@ -221,32 +221,29 @@
                 imageValue = logoURL;
             }
 
-            // Prima forma: array-form (molti wallet la supportano)
+            // Forma unica compatibile: oggetto
             try {
                 const wasAdded = await window.ethereum.request({
                     method: 'wallet_watchAsset',
-                    params: [
-                        {
-                            type: 'ERC20',
-                            options: {
-                                address,
-                                symbol,
-                                decimals,
-                                image: imageValue
-                            }
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address,
+                            symbol,
+                            decimals,
+                            image: imageValue
                         }
-                    ]
+                    }
                 });
                 if (wasAdded) {
                     alert('USDT added to your wallet!');
                 } else {
                     alert('Token not added');
                 }
-                return;
             } catch (err) {
-                // fallthrough to fallback
+                console.error('Error adding token (object form):', err);
+                alert('Error adding token: ' + (err && err.message ? err.message : String(err)));
             }
-            // Secondo: oggetto-form legacy
             try {
                 const wasAdded = await window.ethereum.request({
                     method: 'wallet_watchAsset',
