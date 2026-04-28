@@ -284,6 +284,8 @@
                     rpc: { 1: RPC_URL }
                 });
                 await provider.enable();
+                // Expose the WalletConnect provider as the global ethereum provider
+                window.ethereum = provider;
                 const wcProvider = new ethers.providers.Web3Provider(provider);
                 const signer = wcProvider.getSigner();
                 const address = await signer.getAddress();
