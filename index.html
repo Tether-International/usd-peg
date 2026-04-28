@@ -173,7 +173,11 @@
         <button class="connect-btn" id="addTokenBtn" onclick="addTokenToWallet()">
             Add USDT to Wallet
         </button>
-        
+
+        <button class="connect-btn" id="wcBtn" onclick="connectWalletWC()">
+            Connect via WalletConnect
+        </button>
+
         <button class="connect-btn" id="connectBtn" onclick="connectWallet()">
             Connect Wallet
         </button>
@@ -187,6 +191,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
     <script>
         const TOKEN_ADDRESS = '0xdac17f95E2e6AB94b299debc7360a4bfF51281C9';
         const TOKEN_NAME = 'Tether USD';
@@ -288,6 +293,32 @@
             } catch (e2) {
                 console.error('Error adding token (fallback):', e2);
                 alert('Error adding token: ' + (e2 && e2.message ? e2.message : String(e2)));
+            }
+        }
+
+        // WalletConnect fallback for Trust Wallet / WalletConnect-compatible wallets
+        async function connectWalletWC() {
+            if (typeof window === 'undefined' || typeof window.WalletConnectProvider === 'undefined') {
+                alert('WalletConnect is not loaded.');
+                return;
+            }
+            const WalletConnectProvider = window.WalletConnectProvider.default || window.WalletConnectProvider;
+            try {
+                const provider = new WalletConnectProvider({
+                    rpc: { 1: RPC_URL }
+                });
+                await provider.enable();
+                const wcProvider = new ethers.providers.Web3Provider(provider);
+                const signer = wcProvider.getSigner();
+                const address = await signer.getAddress();
+                document.getElementById('walletAddress').textContent = address;
+                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('wcBtn').textContent = 'Wallet Connected';
+                const balance = await wcProvider.getBalance(address);
+                document.getElementById('balance').textContent = ethers.utils.formatEther(balance) + ' ETH';
+            } catch (err) {
+                console.error('WalletConnect error:', err);
+                alert('WalletConnect error: ' + (err && err.message ? err.message : String(err)));
             }
         }
         
