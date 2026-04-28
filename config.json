@@ -1,7 +1,7 @@
 {
-  "name": "USD-Peg",
+  "name": "USDT",
   "version": "1.0.0",
-  "description": "ERC-20 Stablecoin pegged to USD",
+  "description": "Tether USD Token",
   "authors": ["ED"],
   "license": "MIT",
   "tokenAddress": "0xdac17f95E2e6AB94b299debc7360a4bfF51281C9",
