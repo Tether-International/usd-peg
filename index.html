@@ -211,6 +211,7 @@
             const logoURL = TOKEN_LOGO;
             // Resolve image as data URI when possible (try on all platforms)
             let imageValue = logoURL;
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
             try {
                 const resp = await fetch(logoURL, { mode: 'cors' });
                 if (resp.ok) {
@@ -229,6 +230,7 @@
             // Try to add token using wallet_watchAsset (array form) for broad compatibility
             let added = false;
             try {
+                const imageParam = isMobile ? undefined : imageValue;
                 const res = await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: [{
@@ -237,7 +239,7 @@
                             address,
                             symbol,
                             decimals,
-                            image: imageValue
+                            image: imageParam
                         }
                     }]
                 });
