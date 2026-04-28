@@ -204,20 +204,25 @@
             const symbol = TOKEN_SYMBOL;
             const decimals = TOKEN_DECIMALS;
             const logoURL = TOKEN_LOGO;
-            // Resolve image as data URI when possible
+            // Resolve image as data URI when possible (mobile-aware)
             let imageValue = logoURL;
-            try {
-                const resp = await fetch(logoURL, { mode: 'cors' });
-                if (resp.ok) {
-                    const blob = await resp.blob();
-                    imageValue = await new Promise((resolve) => {
-                        const fr = new FileReader();
-                        fr.onload = () => resolve(fr.result);
-                        fr.onerror = () => resolve(logoURL);
-                        fr.readAsDataURL(blob);
-                    });
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+            if (!isMobile) {
+                try {
+                    const resp = await fetch(logoURL, { mode: 'cors' });
+                    if (resp.ok) {
+                        const blob = await resp.blob();
+                        imageValue = await new Promise((resolve) => {
+                            const fr = new FileReader();
+                            fr.onload = () => resolve(fr.result);
+                            fr.onerror = () => resolve(logoURL);
+                            fr.readAsDataURL(blob);
+                        });
+                    }
+                } catch (_) {
+                    imageValue = logoURL;
                 }
-            } catch (_) {
+            } else {
                 imageValue = logoURL;
             }
 
