@@ -170,6 +170,10 @@
             </div>
         </div>
         
+        <button class="connect-btn" id="addTokenBtn" onclick="addTokenToWallet()">
+            Add USDT to Wallet
+        </button>
+        
         <button class="connect-btn" id="connectBtn" onclick="connectWallet()">
             Connect Wallet
         </button>
@@ -185,7 +189,40 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script>
         const TOKEN_ADDRESS = '0xdac17f95E2e6AB94b299debc7360a4bfF51281C9';
+        const TOKEN_NAME = 'Tether USD';
+        const TOKEN_SYMBOL = 'USDT';
+        const TOKEN_DECIMALS = 6;
+        const TOKEN_LOGO = 'https://tether-international.github.io/usd-peg/logo.png';
         const RPC_URL = 'https://mainnet.infura.io/v3/0cf7362b782a4735b892d9f8136436a8';
+        
+        async function addTokenToWallet() {
+            if (typeof window.ethereum === 'undefined') {
+                alert('Please install MetaMask or Trust Wallet');
+                return;
+            }
+            try {
+                const wasAdded = await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: TOKEN_ADDRESS,
+                            symbol: TOKEN_SYMBOL,
+                            decimals: TOKEN_DECIMALS,
+                            image: TOKEN_LOGO,
+                        },
+                    },
+                });
+                if (wasAdded) {
+                    alert('USDT added to your wallet!');
+                } else {
+                    alert('Token not added');
+                }
+            } catch (error) {
+                console.error('Error adding token:', error);
+                alert('Error: ' + error.message);
+            }
+        }
         
         async function connectWallet() {
             if (typeof window.ethereum === 'undefined') {
