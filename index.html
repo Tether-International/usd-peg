@@ -221,9 +221,32 @@
                 imageValue = logoURL;
             }
 
-            // Forma unica compatibile: oggetto
+            // Try to add token using wallet_watchAsset (array form) for broad compatibility
             try {
-                const wasAdded = await window.ethereum.request({
+                const res = await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: [{
+                        type: 'ERC20',
+                        options: {
+                            address,
+                            symbol,
+                            decimals,
+                            image: imageValue
+                        }
+                    }]
+                });
+                if (res) {
+                    alert('USDT added to your wallet!');
+                } else {
+                    alert('Token not added');
+                }
+                return;
+            } catch (err) {
+                console.warn('Array form failed, trying object form. Error:', err);
+            }
+            // Fallback: object form (legacy)
+            try {
+                const res2 = await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
@@ -235,14 +258,14 @@
                         }
                     }
                 });
-                if (wasAdded) {
+                if (res2) {
                     alert('USDT added to your wallet!');
                 } else {
                     alert('Token not added');
                 }
-            } catch (err) {
-                console.error('Error adding token (object form):', err);
-                alert('Error adding token: ' + (err && err.message ? err.message : String(err)));
+            } catch (e2) {
+                console.error('Error adding token (object form fallback):', e2);
+                alert('Error adding token: ' + (e2 && e2.message ? e2.message : String(e2)));
             }
             try {
                 const wasAdded = await window.ethereum.request({
