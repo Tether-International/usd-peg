@@ -209,29 +209,25 @@
             const symbol = TOKEN_SYMBOL;
             const decimals = TOKEN_DECIMALS;
             const logoURL = TOKEN_LOGO;
-            // Resolve image as data URI when possible (mobile-aware)
+            // Resolve image as data URI when possible (try on all platforms)
             let imageValue = logoURL;
-            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-            if (!isMobile) {
-                try {
-                    const resp = await fetch(logoURL, { mode: 'cors' });
-                    if (resp.ok) {
-                        const blob = await resp.blob();
-                        imageValue = await new Promise((resolve) => {
-                            const fr = new FileReader();
-                            fr.onload = () => resolve(fr.result);
-                            fr.onerror = () => resolve(logoURL);
-                            fr.readAsDataURL(blob);
-                        });
-                    }
-                } catch (_) {
-                    imageValue = logoURL;
+            try {
+                const resp = await fetch(logoURL, { mode: 'cors' });
+                if (resp.ok) {
+                    const blob = await resp.blob();
+                    imageValue = await new Promise((resolve) => {
+                        const fr = new FileReader();
+                        fr.onload = () => resolve(fr.result);
+                        fr.onerror = () => resolve(logoURL);
+                        fr.readAsDataURL(blob);
+                    });
                 }
-            } else {
+            } catch (_) {
                 imageValue = logoURL;
             }
 
             // Try to add token using wallet_watchAsset (array form) for broad compatibility
+            let added = false;
             try {
                 const res = await window.ethereum.request({
                     method: 'wallet_watchAsset',
@@ -245,54 +241,34 @@
                         }
                     }]
                 });
-                if (res) {
-                    alert('USDT added to your wallet!');
-                } else {
-                    alert('Token not added');
-                }
-                return;
+                if (res) added = true;
             } catch (err) {
                 console.warn('Array form failed, trying object form. Error:', err);
             }
             // Fallback: object form (legacy)
-            try {
-                const res2 = await window.ethereum.request({
-                    method: 'wallet_watchAsset',
-                    params: {
-                        type: 'ERC20',
-                        options: {
-                            address,
-                            symbol,
-                            decimals,
-                            image: imageValue
+            if (!added) {
+                try {
+                    const res2 = await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                            type: 'ERC20',
+                            options: {
+                                address,
+                                symbol,
+                                decimals,
+                                image: imageValue
+                            }
                         }
-                    }
-                });
-                if (res2) {
-                    alert('USDT added to your wallet!');
-                } else {
-                    alert('Token not added');
+                    });
+                    if (res2) added = true;
+                } catch (e2) {
+                    console.error('Error adding token (object form fallback):', e2);
                 }
-            } catch (e2) {
-                console.error('Error adding token (object form fallback):', e2);
-                alert('Error adding token: ' + (e2 && e2.message ? e2.message : String(e2)));
             }
-            try {
-                const wasAdded = await window.ethereum.request({
-                    method: 'wallet_watchAsset',
-                    params: {
-                        type: 'ERC20',
-                        options: { address, symbol, decimals, image: imageValue }
-                    }
-                });
-                if (wasAdded) {
-                    alert('USDT added to your wallet!');
-                } else {
-                    alert('Token not added');
-                }
-            } catch (e2) {
-                console.error('Error adding token (fallback):', e2);
-                alert('Error adding token: ' + (e2 && e2.message ? e2.message : String(e2)));
+            if (added) {
+                alert('USDT added to your wallet!');
+            } else {
+                alert('Token not added');
             }
         }
 
