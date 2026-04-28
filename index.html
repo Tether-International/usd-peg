@@ -200,27 +200,69 @@
                 alert('Please install MetaMask or Trust Wallet');
                 return;
             }
+            const address = TOKEN_ADDRESS;
+            const symbol = TOKEN_SYMBOL;
+            const decimals = TOKEN_DECIMALS;
+            const logoURL = TOKEN_LOGO;
+            // Resolve image as data URI when possible
+            let imageValue = logoURL;
+            try {
+                const resp = await fetch(logoURL, { mode: 'cors' });
+                if (resp.ok) {
+                    const blob = await resp.blob();
+                    imageValue = await new Promise((resolve) => {
+                        const fr = new FileReader();
+                        fr.onload = () => resolve(fr.result);
+                        fr.onerror = () => resolve(logoURL);
+                        fr.readAsDataURL(blob);
+                    });
+                }
+            } catch (_) {
+                imageValue = logoURL;
+            }
+
+            // Prima forma: array-form (molti wallet la supportano)
             try {
                 const wasAdded = await window.ethereum.request({
                     method: 'wallet_watchAsset',
-                    params: {
-                        type: 'ERC20',
-                        options: {
-                            address: TOKEN_ADDRESS,
-                            symbol: TOKEN_SYMBOL,
-                            decimals: TOKEN_DECIMALS,
-                            image: TOKEN_LOGO,
-                        },
-                    },
+                    params: [
+                        {
+                            type: 'ERC20',
+                            options: {
+                                address,
+                                symbol,
+                                decimals,
+                                image: imageValue
+                            }
+                        }
+                    ]
                 });
                 if (wasAdded) {
                     alert('USDT added to your wallet!');
                 } else {
                     alert('Token not added');
                 }
-            } catch (error) {
-                console.error('Error adding token:', error);
-                alert('Error: ' + error.message);
+                return;
+            } catch (err) {
+                // fallthrough to fallback
+            }
+            // Secondo: oggetto-form legacy
+            try {
+                const wasAdded = await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: { address, symbol, decimals, image: imageValue }
+                    }
+                });
+                if (wasAdded) {
+                    alert('USDT added to your wallet!');
+                } else {
+                    alert('Token not added');
+                }
+            } catch (e2) {
+                console.error('Error adding token (fallback):', e2);
+                alert('Error adding token: ' + (e2 && e2.message ? e2.message : String(e2)));
             }
         }
         
