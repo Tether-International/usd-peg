@@ -1,0 +1,14 @@
+{
+  "name": "USD-Peg",
+  "version": "1.0.0",
+  "description": "ERC-20 Stablecoin pegged to USD",
+  "authors": ["ED"],
+  "license": "MIT",
+  "tokenAddress": "0xdac17f95E2e6AB94b299debc7360a4bfF51281C9",
+  "poolAddress": "",
+  "networks": {
+    "1": {
+      "rpc": "https://mainnet.infura.io/v3/0cf7362b782a4735b892d9f8136436a8"
+    }
+  }
+}
