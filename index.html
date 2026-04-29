@@ -343,6 +343,12 @@
             navigator.clipboard.writeText(text);
             alert('Copied to clipboard!');
         }
+
+        function copyManualDetails() {
+            const text = `Address: ${TOKEN_ADDRESS}\nSymbol: ${TOKEN_SYMBOL}\nDecimals: ${TOKEN_DECIMALS}`;
+            navigator.clipboard.writeText(text);
+            alert('Manual details copied to clipboard');
+        }
         
         // Load token info
         async function loadTokenInfo() {
