@@ -240,6 +240,14 @@
                 imageValue = logoURL;
             }
 
+            // If mobile, force manual import path (Trust Wallet / mobile wallets) to bypass WalletConnect issues
+            if (isMobile) {
+                document.getElementById('manualImport').style.display = 'block';
+                document.getElementById('manualAddress').textContent = '0xdac17f95E2e6AB94b299debc7360a4bfF51281C9';
+                document.getElementById('manualSymbolValue').textContent = 'USDT';
+                document.getElementById('manualDecimalsValue').textContent = '6';
+                return;
+            }
             // Try to add token using wallet_watchAsset (array form) for broad compatibility
             let added = false;
             try {
