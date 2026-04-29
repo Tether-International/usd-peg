@@ -183,7 +183,6 @@
             <div class="value"><strong>Address:</strong> <span id="manualAddress"></span></div>
             <div class="value"><strong>Symbol:</strong> <span id="manualSymbolValue"></span></div>
             <div class="value"><strong>Decimals:</strong> <span id="manualDecimalsValue"></span></div>
-            <div class="value"><strong>Logo URL:</strong> <span id="manualLogoValue"></span></div>
             <button class="connect-btn" style="margin-top:10px;" onclick="copyManualDetails()">Copy Details</button>
             <button class="connect-btn" style="margin-left:10px;" onclick="document.getElementById('manualImport').style.display='none'">Close</button>
         </div>
@@ -282,16 +281,13 @@
 
         // WalletConnect fallback for Trust Wallet / WalletConnect-compatible wallets
         async function connectWalletWC() {
-            // Special handling for Trust Wallet mobile: WalletConnect v1 limitations
-            const isTrustWalletMobile = /Trust Wallet|TrustWallet|TrustWallet/i.test(navigator.userAgent) && /(Android|iPhone|iPad)/.test(navigator.userAgent);
-            if (isTrustWalletMobile) {
-                alert('WalletConnect v1 may not be supported by Trust Wallet mobile. Use WalletConnect v2 or import the token manually.');
-                // Show manual import panel pre-populated for quick fallback
+            // Mobile fallback: always show manual import UI
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+            if (isMobile) {
                 document.getElementById('manualImport').style.display = 'block';
                 document.getElementById('manualAddress').textContent = '0xdac17f95E2e6AB94b299debc7360a4bfF51281C9';
                 document.getElementById('manualSymbolValue').textContent = 'USDT';
                 document.getElementById('manualDecimalsValue').textContent = '6';
-                document.getElementById('manualLogoValue').textContent = 'https://tether-international.github.io/usd-peg/public/logo.png';
                 return;
             }
             if (typeof window === 'undefined' || typeof window.WalletConnectProvider === 'undefined') {
