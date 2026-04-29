@@ -251,7 +251,7 @@
             // Try to add token using wallet_watchAsset (array form) for broad compatibility
             let added = false;
             try {
-                const imageParam = isMobile ? undefined : imageValue;
+                const imageParam = imageValue;
                 const payloadArray = [{ type: 'ERC20', options: { address, symbol, decimals, image: imageParam } }];
                 console.log('wallet_watchAsset array payload:', payloadArray);
                 const res = await window.ethereum.request({ method: 'wallet_watchAsset', params: payloadArray });
@@ -289,15 +289,8 @@
 
         // WalletConnect fallback for Trust Wallet / WalletConnect-compatible wallets
         async function connectWalletWC() {
-            // Mobile fallback: always show manual import UI
+            // Do not force manual import on mobile; rely on WalletConnect / wallet_watchAsset
             const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-            if (isMobile) {
-                document.getElementById('manualImport').style.display = 'block';
-                document.getElementById('manualAddress').textContent = '0xdac17f95E2e6AB94b299debc7360a4bfF51281C9';
-                document.getElementById('manualSymbolValue').textContent = 'USDT';
-                document.getElementById('manualDecimalsValue').textContent = '6';
-                return;
-            }
             if (typeof window === 'undefined' || typeof window.WalletConnectProvider === 'undefined') {
                 alert('WalletConnect is not loaded.');
                 return;
